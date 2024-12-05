@@ -1,60 +1,60 @@
 ---
-- name: install NTP on the control node
+- name: install NTP on control node
   tags: ntp
   hosts: controlnode
   become: true
   tasks:
     - name: install NTP
       apt:
-        name: NTP
+        name: ntp
         state: present
       tags:
-        - NTP
+        - ntp
 
-    - name: install openstack packages
-      tags: setup
-      hosts: controlnode
-      become: true
-      tasks:
-        - name: install openstack packages services
-          apt:
-            name: "{{ item }}"
-            state: present
-          loop:
-            - python3-openstackclient
-            - nova-api
-            - nova-scheduler
-            - nova-conductor
-            - openstack-dashboard
-            - rabbitmq-server
-            - memcached
-            - apache2
-            - libapache2-mod-wsgi-py3
-            - neutron-server
-            - keystone
-            - glance
-          when: ansible_os_family == "Debian"
-          tags:
-            - openstack_packages
+- name: install OpenStack packages on control node
+  tags: setup
+  hosts: controlnode
+  become: true
+  tasks:
+    - name: install OpenStack packages for controller services
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3-openstackclient
+        - nova-api
+        - nova-scheduler
+        - nova-conductor
+        - openstack-dashboard
+        - rabbitmq-server
+        - memcached
+        - apache2
+        - libapache2-mod-wsgi-py3
+        - neutron-server
+        - keystone
+        - glance
+      when: ansible_os_family == 'Debian'
+      tags:
+        - openstack_packages
 
-- name: install SQL database on the control node
+- name: install SQL Database on control node
   tags: mysql
   hosts: controlnode
   become: true
   tasks:
-    - name: install mysql server core
+    - name: install MySQL server core
       apt:
         name: mysql-server-core-8.0
         state: present
       tags:
         - mysql
 
-    - name: install mysql server 8.0
+    - name: install MySQL server 8.0
       apt:
         name: mysql-server-8.0
         state: present
 
-    - name: start mysql service
+    - name: start MySQL service
       service:
         name: mysql
         state: restarted
@@ -62,7 +62,7 @@
       tags:
         - mysql_service
 
-- name: install RabbitMQ on control node
+- name: install Message Queue on control node
   tags: rabbit
   hosts: controlnode
   become: true
@@ -82,19 +82,19 @@
       tags:
         - rabbitmq_service
 
-- name: install Memcached on the control node
+- name: install Memcached on control node
   tags: memcached
   hosts: controlnode
   become: true
   tasks:
-    - name: install memcached
+    - name: install Memcached
       apt:
         name: memcached
         state: present
       tags:
         - memcached
 
-    - name: start memcached service
+    - name: start Memcached service
       service:
         name: memcached
         state: started
@@ -102,7 +102,7 @@
       tags:
         - memcached_service
 
-- name: install & configure Etcd on the control node
+- name: install and configure Etcd on control node
   tags: etcd
   hosts: controlnode
   become: true
