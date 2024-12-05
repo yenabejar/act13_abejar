@@ -1,0 +1,123 @@
+---
+- name: install NTP on the control node
+  tags: ntp
+  hosts: controlnode
+  become: true
+  tasks:
+    - name: install NTP
+      apt:
+        name: NTP
+        state: present
+      tags:
+        - NTP
+
+    - name: install openstack packages
+      tags: setup
+      hosts: controlnode
+      become: true
+      tasks:
+        - name: install openstack packages services
+          apt:
+            name: "{{ item }}"
+            state: present
+          loop:
+            - python3-openstackclient
+            - nova-api
+            - nova-scheduler
+            - nova-conductor
+            - openstack-dashboard
+            - rabbitmq-server
+            - memcached
+            - apache2
+            - libapache2-mod-wsgi-py3
+            - neutron-server
+            - keystone
+            - glance
+          when: ansible_os_family == "Debian"
+          tags:
+            - openstack_packages
+
+- name: install SQL database on the control node
+  tags: mysql
+  hosts: controlnode
+  become: true
+  tasks:
+    - name: install mysql server core
+      apt:
+        name: mysql-server-core-8.0
+        state: present
+      tags:
+        - mysql
+
+    - name: install mysql server 8.0
+      apt:
+        name: mysql-server-8.0
+        state: present
+
+    - name: start mysql service
+      service:
+        name: mysql
+        state: restarted
+        enabled: yes
+      tags:
+        - mysql_service
+
+- name: install RabbitMQ on control node
+  tags: rabbit
+  hosts: controlnode
+  become: true
+  tasks:
+    - name: install RabbitMQ
+      apt:
+        name: rabbitmq-server
+        state: present
+      tags:
+        - rabbitmq
+
+    - name: start RabbitMQ service
+      service:
+        name: rabbitmq-server
+        state: started
+        enabled: yes
+      tags:
+        - rabbitmq_service
+
+- name: install Memcached on the control node
+  tags: memcached
+  hosts: controlnode
+  become: true
+  tasks:
+    - name: install memcached
+      apt:
+        name: memcached
+        state: present
+      tags:
+        - memcached
+
+    - name: start memcached service
+      service:
+        name: memcached
+        state: started
+        enabled: yes
+      tags:
+        - memcached_service
+
+- name: install & configure Etcd on the control node
+  tags: etcd
+  hosts: controlnode
+  become: true
+  tasks:
+    - name: install Etcd
+      apt:
+        name: etcd
+        state: present
+      tags:
+        - etcd
+
+    - name: start Etcd service
+      service:
+        name: etcd
+        state: started
+        enabled: yes
+      tags:
+        - etcd_service
